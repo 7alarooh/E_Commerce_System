@@ -19,6 +19,29 @@ namespace E_CommerceSystem.Models
         [Required(ErrorMessage = "OrderDate is required.")] // Ensures that the OrderDate is mandatory.
         public DateTime OrderDate { get; set; } = DateTime.Now; // Automatically sets the order date to the current date and time.
 
+        // Navigation property for many-to-many relationship with Product
+        public ICollection<OrderProducts> OrderProducts { get; set; } = new List<OrderProducts>();
+        
+        //Calculated TotalAmount property
+        [NotMapped] // Not stored in the database; calculated at runtime.
+        public decimal TotalAmount
+        {
+            get
+            {
+                decimal total = 0;
+                if (OrderProducts != null)
+                {
+                    foreach (var orderProduct in OrderProducts)
+                    {
+                        total += orderProduct.Quantity * orderProduct.Product.Price;
+                    }
+                }
+                return total;
+            }
+        }
+
 
     }
+
 }
+
