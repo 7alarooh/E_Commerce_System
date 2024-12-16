@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using E_CommerceSystem.Models;
 
 namespace E_CommerceSystem
 {
@@ -8,6 +10,10 @@ namespace E_CommerceSystem
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            // Configure DbContext with a database provider
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,7 +32,6 @@ namespace E_CommerceSystem
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
