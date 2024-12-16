@@ -52,6 +52,11 @@ namespace E_CommerceSystem.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;// Automatically sets the current date and time when a user is created.
 
+        // Navigation property for orders (One-to-Many)
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+
+        // Navigation property for reviews (One-to-Many)
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
         // Validates the password based on a regular expression (Regex).
         // Validate Password with Regex
         private bool IsValidPassword(string password)
