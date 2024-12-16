@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Lenovo\\source\\repos\\API_Pract\\E_CommerceSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CD595EA5-EC7D-4631-87BA-B5B132EE0177}|E_CommerceSystem\\E_CommerceSystem.csproj|c:\\users\\lenovo\\source\\repos\\api_pract\\e_commercesystem\\e_commercesystem\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CD595EA5-EC7D-4631-87BA-B5B132EE0177}|E_CommerceSystem\\E_CommerceSystem.csproj|solutionrelative:e_commercesystem\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\Lenovo\\source\\repos\\API_Pract\\E_CommerceSystem\\E_CommerceSystem\\Models\\User.cs",
+              "RelativeDocumentMoniker": "E_CommerceSystem\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\Lenovo\\source\\repos\\API_Pract\\E_CommerceSystem\\E_CommerceSystem\\Models\\User.cs",
+              "RelativeToolTip": "E_CommerceSystem\\Models\\User.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAIwC4AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-16T10:43:39.996Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
