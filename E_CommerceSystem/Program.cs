@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using E_CommerceSystem.Models;
+using E_CommerceSystem.Services;
 
 namespace E_CommerceSystem
 {
@@ -10,7 +11,7 @@ namespace E_CommerceSystem
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            builder.Services.AddScoped<UserService>();
             // Configure DbContext with a database provider
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
