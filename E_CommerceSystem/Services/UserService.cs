@@ -5,7 +5,7 @@ using E_CommerceSystem.Repositories;
 
 namespace E_CommerceSystem.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
         /// <summary>
