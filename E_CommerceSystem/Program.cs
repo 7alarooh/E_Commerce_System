@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using E_CommerceSystem.Repositories;
 using E_CommerceSystem.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace E_CommerceSystem
 {
@@ -14,11 +15,7 @@ namespace E_CommerceSystem
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             // Scoped Repositories and Services
-            builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
@@ -29,25 +26,32 @@ namespace E_CommerceSystem
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
 
+            // Register TokenService with secret key
+            builder.Services.AddScoped<ITokenService>(provider =>
+            {
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                var secretKey = configuration["JwtSettings:Secret"];
+                return new TokenService(secretKey);
+            });
+
+            builder.Services.AddScoped<UserService>();
+
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            // Configure JWT Authentication - Only ONE registration
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = "Bearer";
-                options.DefaultChallengeScheme = "Bearer";
-            })
-            .AddJwtBearer("Bearer", options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+            // Configure JWT Authentication
+            var secretKey = builder.Configuration["JwtSettings:Secret"];
+            builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer(options =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKeyForJWT12345")),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
 
             // Add Authorization
             builder.Services.AddAuthorization();
@@ -73,7 +77,7 @@ namespace E_CommerceSystem
             app.UseHttpsRedirection();
 
             // Ensure correct middleware order
-            app.UseAuthentication(); // Add this before Authorization
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
