@@ -13,27 +13,27 @@ namespace E_CommerceSystem.Services
         {
             _userRepository = userRepository;
         }
+        /// <summary>
+        /// Validate user login credentials.
+        /// </summary>
+        /// <param name="email">User's email</param>
+        /// <param name="password">User's plain-text password</param>
+        /// <returns>User if credentials are valid, otherwise null</returns>
+        public User GetUserByEmailAndPassword(string email, string password)
+        {
+            // Delegate to repository to validate user credentials
+            return _userRepository.GetUser(email, password);
+        }
 
         /// <summary>
-        /// Add a new user to the system after validating business rules.
+        /// Add a new user to the system.
         /// </summary>
-        /// <param name="user">User object</param>
-        /// <returns>True if the user is added successfully, otherwise false</returns>
         public bool AddUser(User user)
         {
-            // Validate email format
-            if (!IsValidEmail(user.Email))
-                throw new ArgumentException("Invalid email format.");
+            if (_userRepository.GetUser(user.Email, string.Empty) != null)
+                throw new ArgumentException("Email already exists.");
 
-            // Check if email is unique
-            var existingUser = _userRepository.GetUser(user.Email, string.Empty);
-            if (existingUser != null)
-                throw new ArgumentException("Email must be unique.");
-
-            // Hash the password
             user.Password = HashPassword(user.Password);
-
-            // Delegate to repository to add the user
             return _userRepository.AddUser(user);
         }
 
@@ -48,22 +48,12 @@ namespace E_CommerceSystem.Services
             return Regex.IsMatch(email, emailRegex);
         }
 
-        /// <summary>
-        /// Hash a password using SHA256.
-        /// </summary>
-        /// <param name="password">Plain-text password</param>
-        /// <returns>Hashed password</returns>
         private string HashPassword(string password)
         {
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
                 byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                var builder = new System.Text.StringBuilder();
-                foreach (var b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
+                return string.Concat(bytes.Select(b => b.ToString("x2")));
             }
         }
     }
