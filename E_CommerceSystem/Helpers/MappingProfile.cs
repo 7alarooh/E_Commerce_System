@@ -23,6 +23,13 @@ namespace E_CommerceSystem.Helpers
                 .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
 
             CreateMap<InputOrderDTO, Order>();
+
+            CreateMap<AddReviewDTO, Review>();
+
+            CreateMap<Review, OutputReviewDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
+
         }
     }
 }
