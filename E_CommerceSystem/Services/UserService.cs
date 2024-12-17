@@ -8,6 +8,7 @@ namespace E_CommerceSystem.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        
         /// <summary>
         /// Retrieve user details by ID.
         /// </summary>
@@ -20,7 +21,7 @@ namespace E_CommerceSystem.Services
 
         public UserService(IUserRepository userRepository)
         {
-            _userRepository = userRepository;
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
         /// <summary>
         /// Validate user login credentials.
@@ -31,6 +32,9 @@ namespace E_CommerceSystem.Services
         public User GetUserByEmailAndPassword(string email, string password)
         {
             // Delegate to repository to validate user credentials
+            if (!IsValidEmail(email))
+            throw new ArgumentException("Invalid email format.");
+
             return _userRepository.GetUser(email, password);
         }
 
@@ -39,10 +43,13 @@ namespace E_CommerceSystem.Services
         /// </summary>
         public bool AddUser(User user)
         {
+            if (!IsValidEmail(user.Email))
+                throw new ArgumentException("Invalid email format.");
+
             if (_userRepository.GetUser(user.Email, string.Empty) != null)
                 throw new ArgumentException("Email already exists.");
 
-            user.Password = HashPassword(user.Password);
+            // No need to hash here since User.Password setter already hashes
             return _userRepository.AddUser(user);
         }
 

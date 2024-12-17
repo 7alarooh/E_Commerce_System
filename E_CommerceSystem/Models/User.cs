@@ -28,14 +28,15 @@ namespace E_CommerceSystem.Models
             get => _password;
             set
             {
-                // Validates the password against a regex pattern for complexity requirements.
+                Console.WriteLine($"Password received: {value}"); // Log password input for debugging
                 if (IsValidPassword(value))
                 {
-                    _password = HashPassword(value); // Hashes the password using SHA256 before storing it.
+                    Console.WriteLine("Password passed validation.");
+                    _password = HashPassword(value);
+                    Console.WriteLine($"Hashed Password: {_password}"); // Log hashed password
                 }
                 else
                 {
-                    // Throws an error if the password doesn't meet the complexity requirements.
                     throw new ArgumentException("Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
                 }
             }
@@ -60,14 +61,14 @@ namespace E_CommerceSystem.Models
         // Validates the password based on a regular expression (Regex).
         // Validate Password with Regex
         private bool IsValidPassword(string password)
-        { 
+        {
             // Regex pattern ensures the password includes:
             // - At least one lowercase letter.
             // - At least one uppercase letter.
             // - At least one digit.
             // - At least one special character.
             // - Minimum length of 8 characters.
-            const string passwordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+            const string passwordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$";
             return Regex.IsMatch(password, passwordRegex);
         }
 

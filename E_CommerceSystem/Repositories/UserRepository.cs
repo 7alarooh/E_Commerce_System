@@ -33,8 +33,10 @@ namespace E_CommerceSystem.Repositories
         /// <returns>User if email and password match, otherwise null</returns>
         public User GetUser(string email, string password)
         {
-            string hashedPassword = HashPassword(password); // Hash password for comparison
-            return _context.Users.FirstOrDefault(u => u.Email == email && u.Password == hashedPassword);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                return null;
+
+            return _context.Users.FirstOrDefault(u => u.Email == email && u.Password == HashPassword(password));
         }
 
         /// <summary>
@@ -44,10 +46,17 @@ namespace E_CommerceSystem.Repositories
         /// <returns>True if user is added successfully, otherwise false</returns>
         public bool AddUser(User user)
         {
-            user.Password = HashPassword(user.Password); // Hash the password before storing it
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            return true;
+            try
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding user: {ex.Message}");
+                return false;
+            }
         }
 
         /// <summary>
