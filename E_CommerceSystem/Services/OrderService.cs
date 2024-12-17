@@ -57,5 +57,38 @@ namespace E_CommerceSystem.Services
 
             // Add order to database
             order.OrderDate = DateTime.Now;
+            _orderRepository.AddOrder(order);
 
+            // Add order items to OrderProducts
+            foreach (var item in orderItems)
+            {
+                var orderProduct = new OrderProducts
+                {
+                    OrderId = order.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity
+                };
 
+                _orderProductsRepository.AddOrderProduct(orderProduct);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Retrieve all orders.
+        /// </summary>
+        public IEnumerable<Order> GetAllOrders()
+        {
+            return _orderRepository.GetAllOrders();
+        }
+
+        /// <summary>
+        /// Retrieve order by ID.
+        /// </summary>
+        public Order GetOrderById(int id)
+        {
+            return _orderRepository.GetOrderById(id);
+        }
+    }
+}
