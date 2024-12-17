@@ -80,7 +80,7 @@ namespace E_CommerceSystem.Services
         /// </summary>
         public IEnumerable<Order> GetAllOrders()
         {
-            return _orderRepository.GetAllOrders();
+            return _orderRepository.GetAllOrders(); // Fetch all orders from repository
         }
 
         /// <summary>
