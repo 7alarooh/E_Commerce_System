@@ -4,6 +4,7 @@ using E_CommerceSystem.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using E_CommerceSystem.Repositories;
+using E_CommerceSystem.Helpers;
 
 namespace E_CommerceSystem
 {
@@ -34,6 +35,20 @@ namespace E_CommerceSystem
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            // Add JWT Authentication
+            builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKey123!")),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
             // Configure DbContext with a database provider
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

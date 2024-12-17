@@ -88,5 +88,22 @@ namespace E_CommerceSystem.Services
         {
             return _productRepository.DeleteProduct(id);
         }
+
+        public IEnumerable<Product> GetFilteredProducts(string name, decimal? minPrice, decimal? maxPrice, int pageNumber, int pageSize)
+        {
+            var query = _productRepository.GetAllProducts().AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+                query = query.Where(p => p.Name.Contains(name));
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
+
+            return query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        }
+
     }
 }

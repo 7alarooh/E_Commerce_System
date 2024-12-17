@@ -42,5 +42,7 @@ namespace E_CommerceSystem.Services
         /// <param name="id">Product ID</param>
         /// <returns>True if product is deleted successfully</returns>
         bool DeleteProduct(int id);
+        IEnumerable<Product> GetFilteredProducts(string name, decimal? minPrice, decimal? maxPrice, int pageNumber, int pageSize);
+
     }
 }
