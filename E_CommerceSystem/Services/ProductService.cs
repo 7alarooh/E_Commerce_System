@@ -8,7 +8,7 @@ namespace E_CommerceSystem.Services
     /// <summary>
     /// Service layer for handling business logic related to products.
     /// </summary>
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
 
