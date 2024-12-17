@@ -19,6 +19,7 @@ namespace E_CommerceSystem.Controllers
             _tokenService = tokenService;
         }
 
+
         /// <summary>
         /// Register a new user.
         /// </summary>
@@ -75,7 +76,7 @@ namespace E_CommerceSystem.Controllers
         [HttpGet("{id}")]
         public IActionResult GetUserDetails(int id)
         {
-            var user = _userService.GetUserById(id);
+            var user = _userService.GetUserById(id); // Highlight: Call the new method
             if (user == null)
                 return NotFound(new { Error = "User not found." });
 
@@ -90,5 +91,6 @@ namespace E_CommerceSystem.Controllers
 
             return Ok(outputUser);
         }
+
     }
 }

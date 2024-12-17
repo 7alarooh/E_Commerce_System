@@ -16,6 +16,16 @@ namespace E_CommerceSystem.Repositories
         }
 
         /// <summary>
+        /// Retrieve user by ID.
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns>User object</returns>
+        public User GetUserById(int id)
+        {
+            return _context.Users.FirstOrDefault(u => u.Id == id);
+        }
+
+        /// <summary>
         /// Get a user by email and password (hashed).
         /// </summary>
         /// <param name="email">User's email</param>

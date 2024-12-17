@@ -8,6 +8,15 @@ namespace E_CommerceSystem.Services
     public class UserService
     {
         private readonly IUserRepository _userRepository;
+        /// <summary>
+        /// Retrieve user details by ID.
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns>User object if found, otherwise null</returns>
+        public User GetUserById(int id)
+        {
+            return _userRepository.GetUserById(id);
+        }
 
         public UserService(IUserRepository userRepository)
         {
