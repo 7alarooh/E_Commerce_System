@@ -11,6 +11,18 @@ namespace E_CommerceSystem.Helpers
         {
             CreateMap<InputProductDTO, Product>();
             CreateMap<Product, OutputProductDTO>();
+
+            CreateMap<Order, OutputOrderDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderProducts));
+
+            CreateMap<OrderProducts, OutputOrderItemDTO>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product.Price))
+                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
+
+            CreateMap<InputOrderDTO, Order>();
         }
     }
 }

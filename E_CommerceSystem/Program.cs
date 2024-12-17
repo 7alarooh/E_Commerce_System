@@ -26,6 +26,7 @@ namespace E_CommerceSystem
             builder.Services.AddScoped<IOrderProductsRepository, OrderProductsRepository>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IOrderProductsService, OrderProductsService>();
+           
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
