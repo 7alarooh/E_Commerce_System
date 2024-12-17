@@ -95,7 +95,8 @@ namespace E_CommerceSystem.Services
 
             if (reviews.Any())
             {
-                var overallRating = reviews.Average(r => r.Rating);
+                var overallRating = (decimal)reviews.Average(r => r.Rating);
+
                 var product = _productRepository.GetProductById(productId);
                 if (product != null)
                 {
