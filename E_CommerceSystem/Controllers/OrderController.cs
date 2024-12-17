@@ -65,7 +65,6 @@ namespace E_CommerceSystem.Controllers
             var outputOrders = _mapper.Map<IEnumerable<OutputOrderDTO>>(userOrders);
             return Ok(outputOrders);
         }
-
         /// <summary>
         /// Get order details by ID (Authenticated users only).
         /// </summary>
