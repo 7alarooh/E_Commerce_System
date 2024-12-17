@@ -15,46 +15,43 @@ namespace E_CommerceSystem
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            // Scoped Repositories and Services
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddAuthentication("Bearer")
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKeyForJWT12345")),
-            
-                        ValidateIssuer = false,
-          
-                        ValidateAudience = false
-                    };
-                });
-            builder.Services.AddAuthorization();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+            // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            // Add JWT Authentication
-            builder.Services.AddAuthentication("Bearer")
-                .AddJwtBearer(options =>
+            // Configure JWT Authentication - Only ONE registration
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Bearer";
+                options.DefaultChallengeScheme = "Bearer";
+            })
+            .AddJwtBearer("Bearer", options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKey123!")),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
-            // Configure DbContext with a database provider
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKeyForJWT12345")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            // Add Authorization
+            builder.Services.AddAuthorization();
+
+            // Configure DbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Add Controllers and Swagger
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -69,6 +66,8 @@ namespace E_CommerceSystem
 
             app.UseHttpsRedirection();
 
+            // Ensure correct middleware order
+            app.UseAuthentication(); // Add this before Authorization
             app.UseAuthorization();
 
             app.MapControllers();
