@@ -8,7 +8,7 @@ namespace E_CommerceSystem.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        
+
         /// <summary>
         /// Retrieve user details by ID.
         /// </summary>
@@ -16,7 +16,10 @@ namespace E_CommerceSystem.Services
         /// <returns>User object if found, otherwise null</returns>
         public User GetUserById(int id)
         {
-            return _userRepository.GetUserById(id);
+            var user = _userRepository.GetUserById(id);
+            if (user == null)
+                throw new ArgumentException($"User with ID {id} does not exist.");
+            return user;
         }
 
         public UserService(IUserRepository userRepository)
@@ -33,7 +36,7 @@ namespace E_CommerceSystem.Services
         {
             // Delegate to repository to validate user credentials
             if (!IsValidEmail(email))
-            throw new ArgumentException("Invalid email format.");
+                throw new ArgumentException("Invalid email format.");
 
             return _userRepository.GetUser(email, password);
         }

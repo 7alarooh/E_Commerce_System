@@ -1,40 +1,53 @@
 ﻿using System;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using E_CommerceSystem.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace E_CommerceSystem.Services
 {
     public class TokenService : ITokenService
     {
         private readonly string _secretKey;
-        public TokenService(string secretKey)
+        private readonly int _expiryInMinutes;
+
+        public TokenService(IConfiguration configuration)
         {
-            _secretKey = secretKey;
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            _secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentException("SecretKey is not configured.");
+            if (!int.TryParse(jwtSettings["ExpiryInMinutes"], out _expiryInMinutes))
+                throw new ArgumentException("ExpiryInMinutes is not configured or invalid.");
         }
 
-
-        public string GenerateToken(User user)
+        /// <summary>
+        /// Generates a JWT token for a user.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="username">The username of the user.</param>
+        /// <returns>A JWT token string.</returns>
+        public string GenerateJwtToken(string userId, string username, string role, string email)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_secretKey);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var claims = new[]
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
-            }),
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+        new Claim(JwtRegisteredClaimNames.Sub, userId),
+        new Claim(JwtRegisteredClaimNames.UniqueName, username),
+        new Claim(ClaimTypes.Role, role),
+        new Claim(JwtRegisteredClaimNames.Email, email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(_expiryInMinutes),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
     }
