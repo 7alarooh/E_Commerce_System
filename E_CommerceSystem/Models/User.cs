@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E_CommerceSystem.Models
 {

@@ -48,16 +48,33 @@ namespace E_CommerceSystem.Repositories
         {
             try
             {
+                // Check if the email is unique
+                if (_context.Users.Any(u => u.Email == user.Email))
+                {
+                    Console.WriteLine($"Error adding user: Email '{user.Email}' already exists.");
+                    throw new ArgumentException("Email already exists.");
+                }
+
+                // Add the user to the database
                 _context.Users.Add(user);
                 _context.SaveChanges();
+                Console.WriteLine($"User '{user.Email}' added successfully.");
                 return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle database-specific exceptions
+                Console.WriteLine($"Database update error adding user: {ex.InnerException?.Message ?? ex.Message}");
+                throw new InvalidOperationException("An error occurred while adding the user to the database.", ex);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error adding user: {ex.Message}");
-                return false;
+                // Handle general exceptions
+                Console.WriteLine($"General error adding user: {ex.Message}");
+                throw; // Rethrow the exception to allow higher-level handling
             }
         }
+
 
         /// <summary>
         /// Update an existing user's details.
