@@ -5,9 +5,6 @@ using E_CommerceSystem.Models;
 
 namespace E_CommerceSystem.Repositories
 {
-    /// <summary>
-    /// Repository for managing Order operations.
-    /// </summary>
     public class OrderRepository : IOrderRepository
     {
         private readonly ApplicationDbContext _context;
@@ -20,24 +17,28 @@ namespace E_CommerceSystem.Repositories
         public IEnumerable<Order> GetAllOrders()
         {
             return _context.Orders
-                           .Include(o => o.User)
-                           .Include(o => o.OrderProducts)
-                           .ThenInclude(op => op.Product)
-                           .ToList();
+                .Include(o => o.User)
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+                .ToList();
         }
 
         public Order GetOrderById(int id)
         {
             return _context.Orders
-                           .Include(o => o.User)
-                           .Include(o => o.OrderProducts)
-                           .ThenInclude(op => op.Product)
-                           .FirstOrDefault(o => o.Id == id);
+                .Include(o => o.User)
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+                .FirstOrDefault(o => o.Id == id);
         }
 
         public bool AddOrder(Order order)
         {
             if (order == null) return false;
+
+            // Calculate TotalAmount before saving
+            order.TotalAmount = order.OrderProducts
+                .Sum(op => op.Quantity * op.Product.Price);
 
             _context.Orders.Add(order);
             _context.SaveChanges();
@@ -46,11 +47,15 @@ namespace E_CommerceSystem.Repositories
 
         public bool UpdateOrder(int id, Order updatedOrder)
         {
-            var existingOrder = _context.Orders.Find(id);
+            var existingOrder = _context.Orders.Include(o => o.OrderProducts).ThenInclude(op => op.Product).FirstOrDefault(o => o.Id == id);
             if (existingOrder == null) return false;
 
-            existingOrder.OrderDate = updatedOrder.OrderDate;
             existingOrder.UserId = updatedOrder.UserId;
+            existingOrder.OrderDate = updatedOrder.OrderDate;
+
+            // Recalculate TotalAmount
+            existingOrder.TotalAmount = updatedOrder.OrderProducts
+                .Sum(op => op.Quantity * op.Product.Price);
 
             _context.Orders.Update(existingOrder);
             _context.SaveChanges();
