@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using E_CommerceSystem.Models;
 using E_CommerceSystem.Repositories;
 
@@ -9,11 +8,11 @@ namespace E_CommerceSystem.Services
     {
         private readonly IUserRepository _userRepository;
 
-        /// <summary>
-        /// Retrieve user details by ID.
-        /// </summary>
-        /// <param name="id">User ID</param>
-        /// <returns>User object if found, otherwise null</returns>
+        public UserService(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
         public User GetUserById(int id)
         {
             var user = _userRepository.GetUserById(id);
@@ -22,49 +21,40 @@ namespace E_CommerceSystem.Services
             return user;
         }
 
-        public UserService(IUserRepository userRepository)
-        {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        }
-        /// <summary>
-        /// Validate user login credentials.
-        /// </summary>
-        /// <param name="email">User's email</param>
-        /// <param name="password">User's plain-text password</param>
-        /// <returns>User if credentials are valid, otherwise null</returns>
-        public User GetUserByEmailAndPassword(string email, string password)
-        {
-            // Delegate to repository to validate user credentials
-            if (!IsValidEmail(email))
-                throw new ArgumentException("Invalid email format.");
-
-            return _userRepository.GetUser(email, password);
-        }
-
-        /// <summary>
-        /// Add a new user to the system.
-        /// </summary>
         public bool AddUser(User user)
         {
             if (!IsValidEmail(user.Email))
                 throw new ArgumentException("Invalid email format.");
 
-            if (_userRepository.GetUser(user.Email, string.Empty) != null)
-                throw new ArgumentException("Email already exists.");
+            if (!IsValidPassword(user.Password))
+                throw new ArgumentException("Password must meet complexity requirements.");
 
-            // No need to hash here since User.Password setter already hashes
+            user.Password = HashPassword(user.Password);
             return _userRepository.AddUser(user);
         }
 
-        /// <summary>
-        /// Validate an email format using regular expressions.
-        /// </summary>
-        /// <param name="email">Email to validate</param>
-        /// <returns>True if email is valid, otherwise false</returns>
+        public User GetUserByEmailAndPassword(string email, string password)
+        {
+            if (!IsValidEmail(email))
+                throw new ArgumentException("Invalid email format.");
+
+            var user = _userRepository.GetUser(email);
+            if (user == null || user.Password != HashPassword(password))
+                throw new ArgumentException("Invalid email or password.");
+
+            return user;
+        }
+
         private bool IsValidEmail(string email)
         {
             var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             return Regex.IsMatch(email, emailRegex);
+        }
+
+        private bool IsValidPassword(string password)
+        {
+            const string passwordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$";
+            return Regex.IsMatch(password, passwordRegex);
         }
 
         private string HashPassword(string password)
