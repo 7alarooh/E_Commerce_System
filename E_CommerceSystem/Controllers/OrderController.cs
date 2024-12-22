@@ -15,10 +15,12 @@ namespace E_CommerceSystem.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public OrderController(IOrderService orderService, IMapper mapper)
+        public OrderController(IOrderService orderService, IMapper mapper, IUserService userService)
         {
+            _userService = userService;
             _orderService = orderService;
             _mapper = mapper;
         }
@@ -36,6 +38,13 @@ namespace E_CommerceSystem.Controllers
 
             try
             {
+                // Validate UserId
+                var userExists = _userService.GetUserById(orderDto.UserId);
+                if (userExists == null)
+                {
+                    return BadRequest(new { Error = $"User with ID {orderDto.UserId} does not exist." });
+                }
+
                 var order = new Order
                 {
                     UserId = orderDto.UserId
