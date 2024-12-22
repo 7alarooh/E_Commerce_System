@@ -37,7 +37,10 @@ namespace E_CommerceSystem.Services
         /// <returns>Product if found, otherwise null</returns>
         public Product GetProductById(int id)
         {
-            return _productRepository.GetProductById(id);
+            var product = _productRepository.GetProductById(id);
+            if (product == null)
+                throw new ArgumentException("Product not found.");
+            return product;
         }
 
         /// <summary>
@@ -86,7 +89,9 @@ namespace E_CommerceSystem.Services
         /// <returns>True if deleted successfully, otherwise false</returns>
         public bool DeleteProduct(int id)
         {
-            return _productRepository.DeleteProduct(id);
+            if (!_productRepository.DeleteProduct(id))
+                throw new ArgumentException("Product not found or could not be deleted.");
+            return true;
         }
 
         public IEnumerable<Product> GetFilteredProducts(string name, decimal? minPrice, decimal? maxPrice, int pageNumber, int pageSize)
