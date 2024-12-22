@@ -39,6 +39,13 @@ namespace E_CommerceSystem
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.Property(e => e.TotalAmount)
+                      .HasColumnType("decimal(18,2)")
+                      .IsRequired();
+            });
         }
     }
 }

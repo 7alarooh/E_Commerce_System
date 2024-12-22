@@ -46,11 +46,10 @@ namespace E_CommerceSystem.Services
                 _productRepository.UpdateProduct(product.Id, product);
             }
 
-            // Set order details
+            // Save order
+   
+            order.TotalAmount = totalAmount; 
             order.OrderDate = DateTime.Now;
-            order.TotalAmount = totalAmount;
-
-            // Save the order in the repository
             _orderRepository.AddOrder(order);
 
             // Save order items in the repository

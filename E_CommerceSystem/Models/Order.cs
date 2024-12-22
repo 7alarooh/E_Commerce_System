@@ -25,6 +25,7 @@ namespace E_CommerceSystem.Models
         //Calculated TotalAmount property
         [Required(ErrorMessage = "TotalAmount is required.")]
         public decimal TotalAmount { get; set; } // Mapped to the database
+
     }
 
 }

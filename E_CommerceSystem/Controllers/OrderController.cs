@@ -14,8 +14,8 @@ namespace E_CommerceSystem.Controllers
     [Authorize] // Secures endpoints to authenticated users only
     public class OrderController : ControllerBase
     {
-        private readonly IOrderService _orderService;
         private readonly IUserService _userService;
+        private readonly IOrderService _orderService;
         private readonly IMapper _mapper;
 
         public OrderController(IOrderService orderService, IMapper mapper, IUserService userService)
@@ -38,16 +38,16 @@ namespace E_CommerceSystem.Controllers
 
             try
             {
-                // Validate UserId
-                var userExists = _userService.GetUserById(orderDto.UserId);
-                if (userExists == null)
+                // Get the UserId from the token
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    return BadRequest(new { Error = $"User with ID {orderDto.UserId} does not exist." });
+                    return Unauthorized(new { Error = "User ID not found or invalid in token." });
                 }
 
                 var order = new Order
                 {
-                    UserId = orderDto.UserId
+                    UserId = userId
                 };
 
                 var orderItems = orderDto.OrderItems
@@ -100,16 +100,20 @@ namespace E_CommerceSystem.Controllers
             {
                 Id = o.Id,
                 OrderDate = o.OrderDate,
-                TotalAmount = o.TotalAmount,
-                OrderProducts = o.OrderProducts.Select(op => new OrderProductDTO
+                TotalAmount = o.OrderProducts.Sum(op => op.Quantity * op.Product.Price),
+                UserName = o.User.Name, // Fetch UserName from the User navigation property
+                OrderItems = o.OrderProducts.Select(op => new OutputOrderItemDTO
                 {
                     ProductId = op.ProductId,
+                    ProductName = op.Product.Name, // Assuming `Product.Name` exists
+                    Price = op.Product.Price,     // Assuming `Product.Price` exists
                     Quantity = op.Quantity
                 }).ToList()
             }).ToList();
 
             return Ok(outputOrders);
         }
+
 
 
         /// <summary>
