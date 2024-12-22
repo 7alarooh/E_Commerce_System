@@ -42,8 +42,9 @@ namespace E_CommerceSystem.Controllers
 
             if (userId != input.UserId)
             {
-                return Forbid(new { message = "You can only add reviews for your own purchases." });
+                return StatusCode(403, new { message = "You can only add reviews for your own purchases." });
             }
+
 
             try
             {
