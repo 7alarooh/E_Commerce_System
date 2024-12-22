@@ -61,6 +61,14 @@ namespace E_CommerceSystem.Repositories
             _context.SaveChanges();
             return true;
         }
+        public IEnumerable<Order> GetOrdersByUserId(int userId)
+        {
+            return _context.Orders
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+                .Where(o => o.UserId == userId)
+                .ToList();
+        }
 
         public bool DeleteOrder(int id)
         {

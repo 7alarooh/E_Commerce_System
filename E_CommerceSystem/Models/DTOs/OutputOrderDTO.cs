@@ -6,11 +6,9 @@ namespace E_CommerceSystem.Models.DTOs
     public class OutputOrderDTO
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
-        public string UserName { get; set; }
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public List<OutputOrderItemDTO> OrderItems { get; set; }
+        public List<OrderProductDTO> OrderProducts { get; set; }
     }
 
     public class OutputOrderItemDTO

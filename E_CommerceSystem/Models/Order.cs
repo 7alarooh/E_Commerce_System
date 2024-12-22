@@ -21,26 +21,10 @@ namespace E_CommerceSystem.Models
 
         // Navigation property for many-to-many relationship with Product
         public ICollection<OrderProducts> OrderProducts { get; set; } = new List<OrderProducts>();
-        
+
         //Calculated TotalAmount property
-        [NotMapped] // Not stored in the database; calculated at runtime.
-        public decimal TotalAmount
-        {
-            get
-            {
-                decimal total = 0;
-                if (OrderProducts != null)
-                {
-                    foreach (var orderProduct in OrderProducts)
-                    {
-                        total += orderProduct.Quantity * orderProduct.Product.Price;
-                    }
-                }
-                return total;
-            }
-        }
-
-
+        [Required(ErrorMessage = "TotalAmount is required.")]
+        public decimal TotalAmount { get; set; } // Mapped to the database
     }
 
 }

@@ -5,6 +5,7 @@ using E_CommerceSystem.Services;
 using E_CommerceSystem.Models.DTOs;
 using E_CommerceSystem.Models;
 using AutoMapper;
+using System.Security.Claims;
 
 namespace E_CommerceSystem.Controllers
 {
@@ -28,34 +29,55 @@ namespace E_CommerceSystem.Controllers
         [HttpPost("add")]
         public IActionResult AddReview([FromBody] AddReviewDTO input)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return Unauthorized(new { message = "User ID not found in token." });
+            }
+
+            if (!int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new { message = "Invalid User ID format." });
+            }
+
+            if (userId != input.UserId)
+            {
+                return Forbid(new { message = "You can only add reviews for your own purchases." });
+            }
 
             try
             {
-                _reviewService.AddReview(input.UserId, input.ProductId, input.Rating, input.Comment);
+                _reviewService.AddReview(userId, input.ProductId, input.Rating, input.Comment);
                 return Ok(new { Message = "Review added successfully." });
             }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { Error = ex.Message });
             }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
         }
+
 
         /// <summary>
         /// Get all reviews for a specific product.
         /// </summary>
         [HttpGet("product/{productId}")]
+        [AllowAnonymous]
         public IActionResult GetReviewsByProduct(int productId)
         {
             var reviews = _reviewService.GetReviewsByProductId(productId);
-            var outputReviews = _mapper.Map<IEnumerable<OutputReviewDTO>>(reviews);
+            var outputReviews = reviews.Select(r => new OutputReviewDTO
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                ProductId = r.ProductId,
+                Rating = r.Rating,
+                Comment = r.Comment,
+                ReviewDate = r.ReviewDate
+            }).ToList();
+
             return Ok(outputReviews);
         }
+
 
         /// <summary>
         /// Get a specific review by ID.

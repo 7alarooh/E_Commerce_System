@@ -23,15 +23,14 @@ namespace E_CommerceSystem.Models
         [Required(ErrorMessage = "Stock is required.")] // Ensures the Stock field is mandatory.
         [Range(0, int.MaxValue, ErrorMessage = "Stock cannot be negative.")] // Validates that stock is non-negative.
         public int Stock { get; set; }
-        //Navigation property for Reviews (One-to-Many)
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
-
+       
         //Calculated property for Overall Rating
         /// <summary>
         /// Overall rating of the product, stored in the database.
         /// </summary>
         public decimal OverallRating { get; set; } = 0;
-
+        //Navigation property for Reviews (One-to-Many)
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
 
     }

@@ -60,7 +60,10 @@ namespace E_CommerceSystem.Services
         {
             return _orderRepository.GetAllOrders();
         }
-
+        public IEnumerable<Order> GetOrdersByUserId(int userId)
+        {
+            return _orderRepository.GetAllOrders().Where(o => o.UserId == userId);
+        }
         public Order GetOrderById(int id)
         {
             return _orderRepository.GetOrderById(id);

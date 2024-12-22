@@ -5,6 +5,7 @@ using E_CommerceSystem.Models.DTOs;
 using E_CommerceSystem.Services;
 using E_CommerceSystem.Models;
 using AutoMapper;
+using System.Security.Claims;
 
 namespace E_CommerceSystem.Controllers
 {
@@ -56,15 +57,42 @@ namespace E_CommerceSystem.Controllers
         /// <summary>
         /// Get all orders for an authenticated user.
         /// </summary>
-        [HttpGet("user/{userId}")]
-        public IActionResult GetUserOrders(int userId)
+        [HttpGet("GetUserOrders")]
+        public IActionResult GetUserOrders()
         {
-            var orders = _orderService.GetAllOrders();
-            var userOrders = orders.Where(o => o.UserId == userId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return Unauthorized(new { message = "User ID not found in token." });
+            }
 
-            var outputOrders = _mapper.Map<IEnumerable<OutputOrderDTO>>(userOrders);
+            if (!int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new { message = "Invalid User ID format." });
+            }
+
+            var orders = _orderService.GetOrdersByUserId(userId);
+            if (!orders.Any())
+            {
+                return NotFound(new { message = "No orders found for the user." });
+            }
+
+            var outputOrders = orders.Select(o => new OutputOrderDTO
+            {
+                Id = o.Id,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                OrderProducts = o.OrderProducts.Select(op => new OrderProductDTO
+                {
+                    ProductId = op.ProductId,
+                    Quantity = op.Quantity
+                }).ToList()
+            }).ToList();
+
             return Ok(outputOrders);
         }
+
+
         /// <summary>
         /// Get order details by ID (Authenticated users only).
         /// </summary>
