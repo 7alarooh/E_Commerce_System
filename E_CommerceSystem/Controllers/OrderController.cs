@@ -27,32 +27,42 @@ namespace E_CommerceSystem.Controllers
         /// Place a new order (Authenticated users only).
         /// </summary>
         [HttpPost("place")]
-        public IActionResult PlaceOrder([FromBody] InputOrderDTO inputOrder)
+        public IActionResult PlaceOrder([FromBody] PlaceOrderDTO orderDto)
         {
             if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
+            }
 
             try
             {
                 var order = new Order
                 {
-                    UserId = inputOrder.UserId
+                    UserId = orderDto.UserId
                 };
 
-                var orderItems = new List<(int ProductId, int Quantity)>();
-                foreach (var item in inputOrder.OrderItems)
-                {
-                    orderItems.Add((item.ProductId, item.Quantity));
-                }
+                var orderItems = orderDto.OrderItems
+                    .Select(item => (item.ProductId, item.Quantity))
+                    .ToList();
 
                 _orderService.PlaceOrder(order, orderItems);
+
                 return Ok(new { Message = "Order placed successfully." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
             }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { Error = ex.Message });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
         }
+
 
         /// <summary>
         /// Get all orders for an authenticated user.

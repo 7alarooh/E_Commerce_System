@@ -25,22 +25,35 @@ namespace E_CommerceSystem.Services
 
             foreach (var item in orderItems)
             {
+                // Fetch the product from the repository
                 var product = _productRepository.GetProductById(item.ProductId);
-                if (product == null || product.Stock < item.Quantity)
+                if (product == null)
                 {
-                    throw new InvalidOperationException($"Insufficient stock for Product ID: {item.ProductId}");
+                    throw new ArgumentException($"Product with ID {item.ProductId} does not exist.");
                 }
 
+                // Check if stock is sufficient
+                if (product.Stock < item.Quantity)
+                {
+                    throw new InvalidOperationException($"Insufficient stock for Product ID {item.ProductId}. Available stock: {product.Stock}.");
+                }
+
+                // Reduce stock and calculate total amount
+                product.Stock -= item.Quantity;
                 totalAmount += product.Price * item.Quantity;
 
-                product.Stock -= item.Quantity;
+                // Update the product in the database
                 _productRepository.UpdateProduct(product.Id, product);
             }
 
+            // Set order details
             order.OrderDate = DateTime.Now;
-            order.TotalAmount = totalAmount; // Set TotalAmount
+            order.TotalAmount = totalAmount;
+
+            // Save the order in the repository
             _orderRepository.AddOrder(order);
 
+            // Save order items in the repository
             foreach (var item in orderItems)
             {
                 var orderProduct = new OrderProducts
@@ -49,7 +62,6 @@ namespace E_CommerceSystem.Services
                     ProductId = item.ProductId,
                     Quantity = item.Quantity
                 };
-
                 _orderProductsRepository.AddOrderProduct(orderProduct);
             }
 

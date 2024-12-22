@@ -72,6 +72,7 @@ namespace E_CommerceSystem.Repositories
             existingProduct.Description = updatedProduct.Description;
             existingProduct.Price = updatedProduct.Price;
             existingProduct.Stock = updatedProduct.Stock;
+            existingProduct.OverallRating = updatedProduct.OverallRating;
 
             _context.Products.Update(existingProduct);
             _context.SaveChanges();

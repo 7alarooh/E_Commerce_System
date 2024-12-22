@@ -29,27 +29,27 @@ namespace E_CommerceSystem.Services
         /// <summary>
         /// Adds a review for a product after validating business rules.
         /// </summary>
-        public bool AddReview(int userId, int productId, int rating, string comment)
+        public void AddReview(int userId, int productId, int rating, string comment)
         {
-            // 1. Check if the user has purchased the product.
-            var orders = _orderRepository.GetAllOrders()
-                        .Where(o => o.UserId == userId && o.OrderProducts.Any(op => op.ProductId == productId));
+            // Validate product existence
+            var product = _productRepository.GetProductById(productId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product does not exist.");
+            }
 
-            if (!orders.Any())
-                throw new InvalidOperationException("You can only review a product you have purchased.");
+            // Validate if the user can review (e.g., purchased the product)
+            var orders = _orderRepository.GetOrdersByUserId(userId);
+            var hasPurchasedProduct = orders
+                .SelectMany(order => order.OrderProducts)
+                .Any(op => op.ProductId == productId);
 
-            // 2. Check if the user has already reviewed this product.
-            var existingReview = _reviewRepository.GetReviewsByProductId(productId)
-                                .FirstOrDefault(r => r.UserId == userId);
+            if (!hasPurchasedProduct)
+            {
+                throw new InvalidOperationException("You can only review products you have purchased.");
+            }
 
-            if (existingReview != null)
-                throw new InvalidOperationException("You have already reviewed this product.");
-
-            // 3. Validate the rating.
-            if (rating < 1 || rating > 5)
-                throw new ArgumentException("Rating must be between 1 and 5.");
-
-            // 4. Create and save the new review.
+            // Add the review
             var review = new Review
             {
                 UserId = userId,
@@ -59,14 +59,31 @@ namespace E_CommerceSystem.Services
                 ReviewDate = DateTime.Now
             };
 
-            var success = _reviewRepository.AddReview(review);
+            _reviewRepository.AddReview(review);
 
-            if (!success) return false;
+            // Recalculate OverallRating
+            UpdateProductOverallRating(productId);
+        }
 
-            // 5. Recalculate the product's overall rating.
-            RecalculateProductRating(productId);
+        private void UpdateProductOverallRating(int productId)
+        {
+            // Get all reviews for the product
+            var reviews = _reviewRepository.GetReviewsByProductId(productId);
+            if (!reviews.Any())
+            {
+                return;
+            }
 
-            return true;
+            // Calculate the average rating
+            var overallRating = (decimal)reviews.Average(r => r.Rating);
+
+            // Update the product's OverallRating
+            var product = _productRepository.GetProductById(productId);
+            if (product != null)
+            {
+                product.OverallRating = Math.Round(overallRating, 2); // Round to 2 decimal places
+                _productRepository.UpdateProduct(product.Id, product);
+            }
         }
 
         /// <summary>

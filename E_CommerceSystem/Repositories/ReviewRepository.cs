@@ -49,9 +49,8 @@ namespace E_CommerceSystem.Repositories
         public IEnumerable<Review> GetReviewsByProductId(int productId)
         {
             return _context.Reviews
-                           .Include(r => r.User)
-                           .Where(r => r.ProductId == productId)
-                           .ToList();
+                .Where(r => r.ProductId == productId)
+                .ToList(); ;
         }
 
         /// <summary>
